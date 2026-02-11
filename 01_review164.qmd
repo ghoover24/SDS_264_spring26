@@ -145,6 +145,8 @@ vaccine_data |>
 
 a) *Carefully and thoroughly* explain why the two histograms below provide different plots.
 
+# ooh i am not sure
+
 ```{r}
 vaccine_data |>
   mutate(tot_pop_millions = tot_pop / 1000000) |>
@@ -161,7 +163,19 @@ vaccine_data |>
 
 b) Find the top 5 counties in terms of total population.
 
+```{r}
+
+```
+
 c) Plot a histogram of logged population and describe this distribution.
+
+# finish
+
+```{r}
+vaccine_data |>
+  ggplot(aes(x = log(tot_pop))) +
+  geom_histogram()
+```
 
 d) Plot the relationship between log population and percent vaccinated using separate colors for Metro and Non-metro counties (be sure there's no 3rd color used for NAs).  Reduce the size and transparency of each point to make the plot more readable.  Describe what you can learn from this plot.
 
