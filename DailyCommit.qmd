@@ -6,7 +6,7 @@ format: pdf
 
 ## My Daily Commit Diary
 
-### Thursday, Feb 12, 2026
+##### Thursday, Feb 12, 2026
 
 I like dogs. I miss my dog right now. Shay please visit me. 
 
