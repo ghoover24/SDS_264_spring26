@@ -1,7 +1,7 @@
 ---
 title: 'Review of Data Science 1'
 format:
-  html: default
+  pdf: default
 editor_options: 
   chunk_output_type: console
 ---
@@ -63,6 +63,7 @@ A recent Stat 272 project examined determinants of covid vaccination rates at th
 - `unemployment_rate_2020` = county unemployment rate in 2020
 - `median_HHincome_2019` = county's median household income in 2019
 
+# Questions for Homework!!! 1, 4-6, 8-10
 
 1. Consider only Minnesota and its surrounding states (Iowa, Wisconsin, North Dakota, and South Dakota).  We want to examine the relationship between the percentage who voted for Biden and the percentage of complete vaccinations by state.  Generate two plots to examine this relationship:
 
@@ -131,7 +132,7 @@ but not
 # complete
 
 ```{r}
-#| eval: false
+#| eval: true
 
 vaccine_data |>
   mutate(HHincome_vs_national = ifelse(median_HHincome_2019 < 69560, "Below median", "Above median")) |>
@@ -164,7 +165,9 @@ vaccine_data |>
 b) Find the top 5 counties in terms of total population.
 
 ```{r}
-
+vaccine_data |>
+  select(county, tot_pop) |>
+  slice_max(tot_pop, n = 5)
 ```
 
 c) Plot a histogram of logged population and describe this distribution.
@@ -181,6 +184,18 @@ d) Plot the relationship between log population and percent vaccinated using sep
 
 
 4. Produce 3 different plots for illustrating the relationship between the rural_urban_code and percent vaccinated.  Hint: you can sometimes turn numeric variables into categorical variables for plotting purposes (e.g. `as.factor()`, `ifelse()`).
+
+```{r}
+ggplot(vaccine_data, aes(x = as.factor(rural_urban_code), y = perc_complete_vac)) +
+  geom_boxplot() # boxplot
+
+ggplot(vaccine_data, aes(x = as.factor(rural_urban_code), y = perc_complete_vac)) +
+  geom_jitter(alpha = 0.5)  # jitter
+
+# ggplot(vaccine_data, aes(x = rural_urban_code, y = perc_complete_vac)) +
+```
+
+# left off
 
 State your favorite plot, why you like it better than the other two, and what you can learn from your favorite plot.  Create an alt text description of your favorite plot, using the Four Ingredient Model.  See [this link](https://drive.google.com/file/d/1BuEbL6vETBcFULmtlrwwZBUYhdEg0Zqb/view?usp=sharing) for reminders and references about alt text.
 
