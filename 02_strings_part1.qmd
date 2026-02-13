@@ -237,7 +237,7 @@ str_detect(spot_smaller$title, "M") # TRUE or FALSE
 str_detect("hello", "ll")
 
 
-spot_smaller |> 
+spot_smaller |>                               # includes all the other rows to make an actual table
   select(title, album_name, artist) |>
   mutate(includes_M = str_detect(title, "M"))
 
@@ -264,7 +264,7 @@ str_extract() is more interesting when we want to identify a particular *pattern
 For instance:
 
 ```{r}
-str_extract("find first vowel", "[aeiou]") # or statement "find a or e or i ..."
+str_extract("find first vowel", "[aeiou]") # or statement "find me the first a or e or i ..."
 
 str_extract("any numb3rs?", "\\d") # digits, are there any digits in the string?
  
@@ -288,6 +288,15 @@ The patterns we show here, `\\d` and `[aeiou]` are called regular expressions.
 
 ## Regular Expressions
 
+### Examples of Regular Expressions
+
+  a. [ ] -> or
+  b. \\d -> digit/number
+  c. ^_  -> starts with
+  d. _$  -> ends with
+  e. \\  -> "escaping" a different function or use (example "\\$" to escape the default use of "\$")
+  f. [^ ]-> everything except what is in the square brackets; negation
+
 *Regular expressions* are a way to write general patterns...
 for instance the string `\\d` will find any digit (number).
 We can also specify whether we want the string to start or end with a certain letter.
@@ -296,10 +305,10 @@ Notice the difference between the regular expression "M" and "\^M", "o" and "o\$
 
 ```{r}
 str_view(spot_smaller$title, "M")
-str_view(spot_smaller$title, "^M")
+str_view(spot_smaller$title, "^M") # starts with
 
 str_view(spot_smaller$title, "o")
-str_view(spot_smaller$title, "o$")
+str_view(spot_smaller$title, "o$") # ends with
 ```
 
 But how do I look for a dollar sign in my string?

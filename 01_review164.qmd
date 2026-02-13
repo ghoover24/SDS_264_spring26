@@ -225,6 +225,18 @@ a) Create a tibble with the following information for each state.  Order states 
 - proportion of Metro counties
 - median unemployment rate 
 
+```{r}
+vaccine_data |>
+  filter(region == "Midwest") |>
+  group_by(state) |>
+  summarize(diff_urbanRural_code = n_distinct(rural_urban_code),
+            tot_state_pop = sum(tot_pop),
+            prop_metro = mean(metro_status == "Metro"),
+            median_unemp = median(unemployment_rate_2020)
+  )
+```
+
+
 b) Use your tibble in (a) to produce a plot of the relationship between proportion of Metro counties and median unemployment rate.  Points should be colored by the number of different `rural_urban_code`s in a state, but a single linear trend should be fit to all points.  What can you conclude from the plot?
 
 
