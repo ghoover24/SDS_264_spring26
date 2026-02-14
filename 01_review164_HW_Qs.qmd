@@ -13,7 +13,6 @@ library(tidyverse)
 vaccine_data <- read_csv("https://joeroith.github.io/264_spring_2026/Data/vaccinations_2021.csv")
 ```
 
-# Questions for Homework: 1, 4-6, 8-10
 
 1. Consider only Minnesota and its surrounding states (Iowa, Wisconsin, North Dakota, and South Dakota).  We want to examine the relationship between the percentage who voted for Biden and the percentage of complete vaccinations by state.  Generate two plots to examine this relationship:
 
@@ -89,9 +88,7 @@ This is a box plot showing the relationship between the level of ruralness/urban
 
 5. BEFORE running the code below, sketch the plot that will be produced by R.  AFTER running the code, describe what conclusion(s) can we draw from this plot?  
 
-# ask cole ?
-
-
+From this plot, we can see the differences in IQR by state. Since Virginia and Georgia have much larger IQRs than states like Missouri and Tennessee, we can conclude that Virginia and Georgia have more variation in who voted for Joe Biden than Missouri and Tennessee who have very little variation.
 
 ```{r}
 #| eval: FALSE
@@ -116,7 +113,6 @@ a) Create a tibble with the following information for each state.  Order states 
 - proportion of Metro counties
 - median unemployment rate 
 
-# ORDER states from least to greatest
 
 ```{r}
 vaccine_data |>
