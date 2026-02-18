@@ -1,17 +1,9 @@
 ---
-title: "Strings: In-class Exercises (Part 2)"
-format:
-  html: default
+title: "Homework #2"
+format: pdf
 editor_options: 
   chunk_output_type: console
-editor: 
-  markdown: 
-    wrap: 72
 ---
-
-You can download this .qmd file from
-[here](https://github.com/joeroith/264_spring_2026/blob/main/03_strings_part2.qmd).
-Just hit the Download Raw File button.
 
 This uses parts of R4DS Ch 14: Strings and Ch 15: Regular Expressions
 (both the first and second editions).
@@ -51,27 +43,6 @@ spot_smaller <- spot_smaller[c(5, 32, 49, 52, 83, 175, 219, 231, 246, 265), ]
 spot_smaller
 ```
 
-## Warm-up
-
-0.  Describe what EACH of the str\_ functions below does. Then, create a
-    new variable "month" which is the two digit month from
-    album_release_date
-
-```{r}
-spot_new <- spot_smaller |>
-  select(title, album_release_date) |>
-  mutate(title_length = str_length(title),  # shows the number of characters in the string (title), creates new column
-         year = str_sub(album_release_date, 1, 4),  # takes the first four characters (a subset) in the string (album release date) creating a new column called year
-         month = parse_number(str_sub(album_release_date, 6, 7)),
-         title_lower = str_to_lower(title),   # makes all characters lowercase
-         album_release_date2 = str_replace_all(album_release_date, "-", "/"))  # replace the "-" in album_release_date with a "/"
-spot_new
-         
-max_length <- max(spot_new$title_length)
-
-str_c("The longest title is", max_length, "characters long.", sep = " ")
-str_glue("The longest title is {max_length} characters long.")
-```
 
 ## Important functions for identifying strings which match
 
@@ -82,40 +53,24 @@ tibble
 1.  Identify the input type and output type for each of these examples:
 
 ```{r}
-str_view(spot_smaller$subgenre, "pop")    #
-typeof(str_view(spot_smaller$subgenre, "pop"))    #
-class(str_view(spot_smaller$subgenre, "pop"))    #
+str_view(spot_smaller$subgenre, "pop")
+typeof(str_view(spot_smaller$subgenre, "pop"))
+class(str_view(spot_smaller$subgenre, "pop"))
 
-str_view(spot_smaller$subgenre, "pop", match = NA)    # output: special stringrview class
-str_view(spot_smaller$subgenre, "pop", html = TRUE)    #
+str_view(spot_smaller$subgenre, "pop", match = NA)
+str_view(spot_smaller$subgenre, "pop", html = TRUE)
 
-str_subset(spot_smaller$subgenre, "pop")   #
+str_subset(spot_smaller$subgenre, "pop")
 
-str_detect(spot_smaller$subgenre, "pop")   # output: logical vector
+str_detect(spot_smaller$subgenre, "pop")
 ```
 
 2.  Use str_detect to print the rows of the spot_smaller tibble
     containing songs that have "pop" in the subgenre. (i.e. make a new
     tibble with fewer rows)
-    
-```{r}
-spot_smaller |>
-  filter(str_detect(subgenre, "pop"))
-```
-
 
 3.  Find the mean song title length for songs with "pop" in the subgenre
     and songs without "pop" in the subgenre.
-    
-```{r}
-spot_smaller |>
-  mutate(title_length = str_length(title),
-         sub_pop = str_detect(subgenre, "pop"),
-         sub_pop = ifelse(sub_pop == TRUE, "Genre with pop", "Genre without pop")) |>
-  group_by(sub_pop) |>
-  summarize(mean_title_length = mean(title_length))
-```
-
 
 Producing a table like this would be great:
 
@@ -150,18 +105,8 @@ Producing a table like this would be SUPER great (hint: `ifelse()`):
 
 bigspotify <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
 
-bigspotify |>
-  filter(!is.na(track_name)) |>
-  mutate(title_lower = str_to_lower(track_name),
-         love = str_detect(title_lower, "love")) |>
-  group_by(playlist_genre) |>
-  summarize(prop_love = mean(love),
-            count = n(),
-            total = sum(love),
-            prop2 = total/count)
-
+bigspotify
 ```
-
 
 ## Matching patterns with regular expressions
 
@@ -196,25 +141,6 @@ str_view(spot_smaller$artist, "[^A-Za-z ]")
 -   Words where q is not followed by u. (are there any in `words`?)
 
 ```{r}
-words <- stringr::words
-
-str_subset(words, "^y")
-
-str_subset(words, "x$")
-
-str_subset(words, "^...$")
-
-str_subset(words, "^.......")
-
-str_subset(words, "^[aeiou]")
-
-str_subset(words, "[^e]ed$")
-
-str_subset(words, "q[^u]") # there are no words where q is not followed by u
-```
-
-
-```{r, eval=FALSE}
 # Try using str_view() or str_subset()
 
 # For example, to find words with "tion" at any point, I could use:
@@ -230,7 +156,7 @@ str_subset(words, "tion")
 | `\\s` | any space, tab, etc.         |
 | `\\b` | any boundary: space, ., etc. |
 
-```{r, eval = FALSE}
+```{r}
 str_view(spot_smaller$album_name, "\\d")
 str_view(spot_smaller$album_name, "\\s")
 str_view(spot_smaller$album_name, "\\b")
@@ -244,7 +170,7 @@ For any characters with special properties, use `\` to "escape" its
 special meaning ... but `\` is itself a special character ... so we need
 two `\\`! (e.g. `\\$`, `\\.`, etc.)
 
-```{r, eval = FALSE}
+```{r}
 str_view(spot_smaller$title, "$")
 str_view(spot_smaller$title, "\\$")
 ```
@@ -253,20 +179,8 @@ str_view(spot_smaller$title, "\\$")
     the track_names you find and make sure the dollar sign is not just
     in a featured artist!
 
-# left off here, need to separate from featured artist
-
-```{r}
-str_subset(bigspotify$track_name, "\\$")
-```
-
 7.  In bigspotify, how many track_names include a dollar amount (a `$`
     followed by a number).
-    
-2 track names
-
-```{r}
-str_subset(bigspotify$track_name, "\\$\\d")
-```
 
 ## Repetition
 
@@ -411,3 +325,53 @@ sentences |>
   str_replace("([^ ]+) ([^ ]+) ([^ ]+)", "\\1 \\3 \\2") |> 
   head(5)
 ```
+
+
+# 04_strings_part3 Start
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(rvest)
+library(httr)
+```
+
+
+## On Your Own - Extra practice with strings and regular expressions
+
+1. Describe the equivalents of ?, +, * in {m,n} form.
+
+
+2. Describe, in words, what the expression `"(.)(.)\\2\\1"` will match, and provide a word or expression as an example.
+
+
+3. Produce an R string which the regular expression represented by `"\\..\\..\\.."` matches.  In other words, find a string `y` below that produces a TRUE in `str_detect`.
+
+
+4. Solve with `str_subset()`, using the words from `stringr::words`:
+
+- Find all words that start or end with x.
+- Find all words that start with a vowel and end with a consonant.
+- Find all words that start and end with the same letter
+
+
+5. What words in `stringr::words` have the highest number of vowels? What words have the highest proportion of vowels? (Hint: what is the denominator?)  Figure this out using the tidyverse and piping, starting with `as_tibble(words) |>`.
+
+
+6. From the Harvard sentences data, use `str_extract` to produce a tibble with 3 columns:  the sentence, the first word in the sentence, and the first word ending in "ed" (NA if there isn't one).
+
+
+7. Find and output all contractions (words with apostrophes) in the Harvard sentences, assuming no sentence has multiple contractions.
+
+
+8. *Carefully* explain what the code below does, both line by line and in general terms.
+
+```{r}
+temp <- str_replace_all(words, "^([A-Za-z])(.*)([a-z])$", "\\3\\2\\1")
+as_tibble(words) |>
+  semi_join(as_tibble(temp)) |>
+  print(n = Inf)
+```
+
