@@ -1,0 +1,41 @@
+---
+title: "Mini_Project_1"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+
+view(headlines)
+```
+
+Dataset: 
+
+The dataset I found is comprised of headlines from the top 50 news publivations in the U.S., India, U.K., and South Africa that include keywords related to women ("women OR woman OR girl OR female OR lady OR ladies OR she OR her OR herself OR aunt OR grandmother OR mother OR sister").
+
+Variables: 
+
+  - url
+  
+  - headline
+  
+  - site
+  
+  - time
+  
+  - country
+  
+  - bias (not sure what this represents at this point, i think just a bias score)
+
+Ideas:
+  
+  - sentiment of headlines by country
+  
+  - what words are commonly included
+  
+      - word clouds?
+
+
+
