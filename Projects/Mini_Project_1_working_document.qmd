@@ -1,0 +1,152 @@
+---
+title: "Mini_Project_1"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(wordcloud)
+library(wordcloud2)
+library(tidytext)
+library(stringr)
+
+headlines <- read_csv("~/Downloads/headlines.csv")
+```
+
+Dataset: 
+
+The dataset I found is comprised of headlines from the top 50 news publivations in the U.S., India, U.K., and South Africa that include keywords related to women ("women OR woman OR girl OR female OR lady OR ladies OR she OR her OR herself OR aunt OR grandmother OR mother OR sister").
+
+Variables: 
+
+  - url
+  
+  - headline
+  
+  - site
+  
+  - time
+  
+  - country
+  
+  - bias (not sure what this represents at this point, i think just a bias score)
+
+Ideas:
+  
+  - sentiment of headlines by country
+  
+  - what words are commonly included
+  
+      - word clouds?
+
+
+```{r}
+headlines_tidy <- headlines |>
+  unnest_tokens(output = word, input = headline_no_site)
+```
+
+# Data Tidying
+
+```{r}
+word <- c("woman", "women", "girl", "female", "lady", "girls", "women's", "ladies") # these words are more popular in this data set, yet do not reveal much about the headlines
+feminine_words <- tibble(word)
+
+headlines_tidier <- headlines_tidy |>
+  anti_join(feminine_words) |>
+  anti_join(stop_words) 
+
+headlines_tidy |>
+  anti_join(feminine_words) |>
+  anti_join(stop_words) |>
+  count(word, sort = TRUE) |>
+  filter(n >= 10) |>
+  print(n = 20) 
+```
+
+## Digit Tidying
+```{r}
+headlines_tidier |>    # filter out any number in the dataset
+  filter(!str_detect(word, "\\d")) |>
+  count(word) 
+```
+
+# Exploring
+
+## Bing
+```{r}
+bing_sentiments <- get_sentiments(lexicon = "bing")
+
+headlines_tidy |>
+  anti_join(feminine_words) |>
+  inner_join(bing_sentiments) |>
+  count(sentiment, word, sort = TRUE)
+
+headlines_tidy |>
+  anti_join(feminine_words) |>
+  inner_join(bing_sentiments) |>
+  count(sentiment, word, sort = TRUE) |>
+  group_by(sentiment) |>
+  slice_max(n, n = 20) |>
+  ungroup() |>
+  ggplot(aes(x = fct_reorder(word, n), y = n, fill = sentiment)) +
+    geom_col() +  
+    coord_flip() +
+    facet_wrap(~ sentiment, scales = "free")
+```
+
+## word cloud
+```{r}
+headlines_words <- headlines_tidy |>
+  anti_join(feminine_words) |>
+  anti_join(stop_words) |>
+  count(word) |>
+  filter(word != "NA") |>
+  arrange(desc(n))
+
+wordcloud(
+  words = headlines_words$word, 
+  freq = headlines_words$n, 
+  max.words = 100, 
+  random.order = FALSE
+)
+
+wordcloud2(
+  words = headlines_words$word, 
+  freq = headlines_words$n, 
+  max.words = 100,
+  random.order = FALSE
+)
+```
+
+commentary on word cloud:
+
+  - a few proper nouns like gaga (referring to lady gaga) and trump (the U.S. president at the time), India, etc.
+  
+  - many negative words
+  
+  - mother being the most popular
+  
+  - a lot of words referring to men...
+  
+  - numbers (maybe filter those out with a str_ function)
+
+## headlines str_functions
+
+```{r}
+headlines_tidy |>
+  anti_join(stop_words) |>
+  anti_join(feminine_words) |>
+  mutate(word = str_replace(word, "\\d+", "")) |>
+  count(word)
+
+
+```
+
+make own stopwords "digits", string detect
+
+```{r}
+str_subset(headlines$headline_no_site, "\\?")
+```
+
