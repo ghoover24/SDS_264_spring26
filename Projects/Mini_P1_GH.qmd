@@ -5,16 +5,15 @@ editor_options:
   chunk_output_type: console
 ---
 ```{r, include = FALSE}
-library(tidyverse)
-library(wordcloud)
-library(wordcloud2)
-library(tidytext)
-library(stringr)
+library(tidyverse) # general
+library(wordcloud) # for word cloud
+library(tidytext) # for text analysis
+library(stringr) # for str functions
 
-headlines <- read_csv("~/Downloads/headlines.csv")
+headlines <- read_csv("~/SDS 264 Spring 2026/SDS_264_spring26/Projects/headlines.csv")
 
-headlines_tidy <- headlines |>
-  unnest_tokens(output = word, input = headline_no_site)
+headlines_tidy <- headlines |> 
+  unnest_tokens(output = word, input = headline_no_site) # make every word its own row
 ```
 
 # The Data
@@ -25,15 +24,9 @@ The data I will be using and analyzing includes all headlines from the top 50 ne
 
 I believe that by finding the most common words and the sentiments in these headlines, we can get a general idea of what is being reported about women and girls in the world. Do they report about women's successes, women's suffering, or maybe something in between?
 
-
-```{r, include = FALSE}
-headlines_tidy <- headlines |>
-  unnest_tokens(output = word, input = headline_no_site)
-```
-
 ```{r, include = FALSE, warning = FALSE}
 word <- c("woman", "women", "girl", "female", "lady", "girls", "women's", "ladies") # these words are more popular in this data set, yet do not reveal much information about the headlines
-feminine_words <- tibble(word) 
+feminine_words <- tibble(word)  # to be joined
 
 headlines_no_stop <- headlines_tidy |>
   anti_join(feminine_words) |> # remove feminine words
@@ -49,8 +42,8 @@ To begin the analysis I want to start with a general look the structure of the h
 
 ```{r, echo = FALSE}
 headlines |>
-  mutate(length = str_length(headline_no_site))|>
-  summarize(mean_length = mean(length),
+  mutate(length = str_length(headline_no_site))|> # find character length of headlines
+  summarize(mean_length = mean(length), 
             min_length = min(length),
             max_length = max(length))
 ```
@@ -59,7 +52,7 @@ From this output, we can see the minimum, maximum, and mean length of headlines 
 
 ```{r, echo = FALSE}
 headlines |>
-  mutate(question = str_extract(headlines$headline_no_site, ".*\\?")) |>
+  mutate(question = str_extract(headlines$headline_no_site, ".*\\?")) |> # find questions in headlines
   select(question) |>
   filter(!is.na(question)) |>
   print(n = 5)
@@ -72,10 +65,10 @@ I also want to see what the most common words are that appear in headlines relat
 ```{r, echo = FALSE}
 headlines_no_stop |>
   count(word, sort = TRUE) |>
-  slice_max(n, n = 10) |>
-  ggplot(aes(x = fct_reorder(word, n), y = n)) +
+  slice_max(n, n = 10) |> # top ten words in the headlines
+  ggplot(aes(x = fct_reorder(word, n), y = n)) + # so bars on the graph are in order of frequency
   geom_col() +
-  coord_flip() +
+  coord_flip() + # more visually pleasing
   labs(x = "Number of occurrences", 
        y = "Word",
        title = "Ten most common words in headlines related to women")
@@ -86,7 +79,7 @@ From the top ten, words like "mother", "sister", "baby", and "daughter" hold the
 The inclusion of "police" and "death" is also very interesting. What contexts are these words being used in? Death is more obviously a negative word but what about police? Depending on the context, police could be positive or negative, especially if you consider the time these articles were drawn from (2010-2020). 
 
 ```{r, eval = FALSE, include = FALSE}
-str_subset(headlines$headline_no_site, "sister")
+str_subset(headlines$headline_no_site, "sister") # to find example for analysis
 ```
 
 ```{r, include = FALSE}
@@ -109,7 +102,7 @@ From the word cloud, we seem to see a lot more negative words than positive. Wor
 ## Sentiment Analysis
 
 ```{r, include = FALSE}
-bing_sentiments <- get_sentiments(lexicon = "bing")
+bing_sentiments <- get_sentiments(lexicon = "bing") # to be joined with headlines data
 ```
 
 In order to analyze and compare the negative words to the positive in headlines tagged with women, I used the bing sentiments lexicon. The bing lexicon only includes two sentiments: negative and positive. I joined these sentiments with the headlines tidy data to create the bar plot below. 
@@ -122,17 +115,17 @@ headlines_no_stop |>
   group_by(sentiment) |> # words are counted by sentiment and both sentiments are included in the slice_max()
   count(word, sentiment, sort = TRUE) |>
   slice_max(n, n = 10) |> 
-  ggplot(aes(x = fct_reorder(word, n), y = n, fill = sentiment)) + 
+  ggplot(aes(x = fct_reorder(word, n), y = n, fill = sentiment)) + # so bars on the graphs are in order of frequency
   geom_col() +  
-  coord_flip() +
-  facet_wrap(~ sentiment, scales = "free") +
+  coord_flip() + # nicer visually 
+  facet_wrap(~ sentiment, scales = "free") + # facet by sentiment
   labs(y = "Number of occurrences",
        x = "Word",
        title = "Most common words with positive and negative sentiments")
 ```
 
 ```{r, eval = FALSE, include = FALSE}
-str_subset(headlines$headline_no_site, "beaut")
+str_subset(headlines$headline_no_site, "beaut") # find examples of sentences that include "beauty" or "beautiful"
 ```
 
 It is also important to note how the most common positive word: "trump." In the bing lexicon, "trump" is most likely a verb. However, since this data is from the years 2010 through 2020, we can assume "trump" in these headlines refers to Donald Trump. If we remove "trump" from this list, the word "helped" is now included with a total of 1,152 appearances.
@@ -140,9 +133,9 @@ It is also important to note how the most common positive word: "trump." In the 
 ```{r, include = FALSE, warning = FALSE}
 headlines_no_stop |>
   inner_join(bing_sentiments) |>
-  filter(word != "trump",
+  filter(word != "trump", # filter out the name "trump" as it is not insightful
          sentiment == "positive") |>
-  count(word, sentiment, sort = TRUE)
+  count(word, sentiment, sort = TRUE) # to find the 11th most common positive word
 ```
 
 From the plot, you can also see that there are a lot more words with negative sentiments than positive, with the negative words' range peaking around 8,000 words vs. 5,000 for words with a positive sentiment. From this observation, I decided to calculate and compare the proportion of negative and positive words included in the headlines. From the table below, it is suprising to see how for every one positive word in the data, there are three negative words. This suggests that most of the articles from these headlines relating to women are negative in nature. Although single word analysis does not tell us the full story (for example, words with a negative sentiment may be set in a positive headline), this proportion of negative words is still quite alarming and raises important questions on what is being reported on regarding women. 
@@ -168,11 +161,11 @@ I am also curious about what the general sentiment of headlines related to women
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 headlines |>
-  filter(str_detect(headlines$headline_no_site, " m[ea]n ")) |>
-  unnest_tokens(output = word, input = headline_no_site) |>
+  filter(str_detect(headlines$headline_no_site, " m[ea]n ")) |> # detect any headlines that include "man" or "men" separate from "wo<men>"
+  unnest_tokens(output = word, input = headline_no_site) |> # make every word its own row
   anti_join(feminine_words) |>
   anti_join(stop_words) |>
-  filter(!str_detect(word, "\\d")) |>
+  filter(!str_detect(word, "\\d")) |> # remove any digits
   inner_join(bing_sentiments) |>
   count(word, sentiment, sort = TRUE) 
 ```
