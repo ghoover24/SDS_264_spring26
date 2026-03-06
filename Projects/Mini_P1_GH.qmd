@@ -1,5 +1,5 @@
 ---
-title: "Mini Project"
+title: "Analysis of Headlines Relating to Women"
 format: pdf
 editor_options: 
   chunk_output_type: console
@@ -177,6 +177,6 @@ headlines |>
   count(word, sentiment, sort = TRUE) 
 ```
 
-# Conclusion
+# Conclusion 
 
-From this exploration and text analysis of headlines tagged with words relating to women, I am generally disappointed. I found that a majority of the words in the text have negative sentiments (particularly when the headlines include "men" or "man"), most with quite disturbing connotations. However, this analysis is not exempt from limitations. I used a single text analysis to examine the sentiment of the words included in these headlines which removes a lot of the context within the headline it self. It may be interesting to further explore how these words fit into their own headline context by using bigrams and/or n-grams. 
+From this exploration and text analysis of headlines tagged with words relating to women, I am generally disappointed. I found that a majority of the words in the text have negative sentiments (particularly when the headlines include "men" or "man"), most with quite disturbing connotations. However, this analysis is not exempt from limitations. I used a single text analysis to examine the sentiment of the words included in these headlines which removes a lot of the context within the headline it self. It may be interesting to further explore how these words fit into their own headline context by using bigrams and/or n-grams. The headlines in this data are also from 2010-2020, making them a little outdated with a fast changing world. 
