@@ -2,7 +2,7 @@
 title: "Analysis of Headlines Relating to Women"
 format: pdf
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: console 
 ---
 ```{r, include = FALSE}
 library(tidyverse) # general
