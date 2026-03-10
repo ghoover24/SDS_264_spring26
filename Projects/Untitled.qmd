@@ -3,3 +3,4 @@ title: "Untitled"
 format: html
 ---
 
+   git config pull.rebase false
