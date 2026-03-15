@@ -392,12 +392,22 @@ foo1(z)
 
 12. Write a function called `greet` using `if`, `else if`, and `else` to print out "good morning" if it's before 12 PM, "good afternoon" if it's between 12 PM and 5 PM, and "good evening" if it's after 5 PM.  Your function should work if you input a time like: `greet(time = "2018-05-03 17:38:01 CDT")` or if you input the current time with `greet(time = Sys.time())`.  [Hint: check out the `hour` function in the `lubridate` package]
 
-# ask cole
-
 ```{r}
+library(lubridate)
+
 greet <- function(time) {
-  
+  if(hour(time) < 12) {
+    print("good morning")
+  } else if(hour(time) >= 12 & hour(time) <= 17) {
+    print("good afternoon")
+  } else {
+    print("good evening")
+  }
 }
+
+greet(time = "2018-05-03 17:38:01 CDT")
+greet(time = "2018-05-03 18:38:01 CDT")
+greet(time = "2018-05-03 4:38:01 CDT")
 ```
 
 13. Modify the `summary6()` function from earlier to add an argument that gives the user an option to remove missing values, if any exist.  Show that your function works for (a) the `hwy` variable in `mpg_tbl <- as_tibble(mpg)`, and (b) the `age` variable in `gss_cat`.
@@ -465,7 +475,6 @@ last_value(numbers)
 
 Hint: start with a ggplot with no user input, and then functionize:
 
-# fix title issue
 - I don't know how to have the title be the variables selected without manually creating a title
 
 ```{r}
