@@ -73,6 +73,8 @@ For example:
 - Selecting by tag:
     - `"a"` selects all hyperlinks in a webpage ("a" represents "anchor" links in HTML)
     - `"p"` selects all paragraph elements
+    - `"h"` is a header
+    - <main body> classification
 
 - Selecting by ID and class:
     - `".description"` selects all elements with `class` equal to "description"
@@ -173,7 +175,8 @@ nih_title
 a) Repeat the process above to extract the description (which include the publication date and the abstract):
 
 ```{r}
-# nih_description <-
+nih_description <- html_nodes(nih, ".thumbnail-teaser__description") |>
+  html_text()
 ```
 
 
@@ -190,7 +193,9 @@ nih_top10
 # now clean the data
 nih_top10 <- nih_top10 |>
   mutate(
-    ** FILL IN **
+    pubdate = str_extract(description,".+ \\d{4}"),
+    description = str_extract(description, "(  ).*$"),
+    pubdate = mdy(pubdate)
   )
 nih_top10
 ```
@@ -220,11 +225,13 @@ scrape_page <- function(url) {
   Sys.sleep(2)
   session <- bow(url, force = TRUE)
   page <- scrape(session)
-  nih_title <- get_text_from_page(** FILL IN **)
-  nih_description <- get_text_from_page(** FILL IN **)
+  nih_title <- get_text_from_page(".thumbnail-teaser__title")
+  nih_description <- get_text_from_page(".thumbnail-teaser__description")
   tibble(title = nih_title, description = nih_description) |>
     mutate(
-      ** FILL IN **
+      pubdate = str_extract(description,".+ \\d{4}"),
+      description = str_extract(description, "(  ).*$"),
+      pubdate = mdy(pubdate)
     )
 
 }
@@ -240,9 +247,9 @@ d) Use a for loop over the first 5 pages by filling in code where asked:
 #| eval: FALSE
 
 pages <- vector("list", length = 5)
-for (i in ** FILL IN **) {
+for (i in 0:4) {
   url <- str_c("https://www.nih.gov/news-events/news-releases?page=", i)
-  pages[[i + 1]] <- ** FILL IN **
+  pages[[i + 1]] <- scrape_page(url)
 }
 
 df_articles <- bind_rows(pages)
