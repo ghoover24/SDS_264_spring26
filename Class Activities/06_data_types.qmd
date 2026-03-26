@@ -508,6 +508,8 @@ pretty_data[[2]][[3]] # second element, third value, double vector
 pretty_data[[2]][3] # second element, third value, double vector
 pretty_data[[2]][c(TRUE, FALSE, TRUE)] # 
 pretty_data[[1]][c(1, 2, 1, 2)]
+
+pretty_data
 ```
 
 
