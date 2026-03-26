@@ -1,0 +1,200 @@
+---
+title: "Knowledge Quiz 2"
+subtitle: "Gaby Hoover"
+format:
+  pdf: default
+editor_options: 
+  chunk_output_type: console
+---
+
+Please answer the following questions, render a pdf, and submit via Moodle by 11 PM on Thursday, Mar 26.
+
+Guidelines: 
+
+- No consulting with anyone else (other than clarification questions from Professor Roith)
+- You may use only materials from this class (our class webpage, links on Moodle, our 3 online textbooks, files posted to the RStudio server)
+- No online searches or use of large language models like ChatGPT
+
+Pledge: 
+
+I pledge my honor that on this quiz I have neither given nor received assistance not explicitly approved by the professor and that I an aware of no dishonest work.
+
+- type your name here to acknowledge the pledge: Gabrielle Hoover
+- OR
+- place an X here if you intentionally are not signing the pledge: _______
+
+```{r}
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(nycflights13)
+```
+
+
+1. Here's is a crazy list that tells you some stuff about data science.  Give code that will produce **exactly** the following outputs. (There are four parts to this question.)
+
+```{r}
+kq2_data <- list(
+  DRY = c("Do not", "Repeat", "Yourself"),
+  knowledge = c("Knowledge", "is", "Power"),
+  nyc = flights,
+  integers = 1:25,
+  doubles = sqrt(1:25),
+  toppings = list(sauce = c("marinara", "bbq", "creamy garlic"),
+               cheese = c("mozzarella", "goat", "feta"),
+               meat = c("pepperoni", "sausage", "chicken", "none"),
+               veggie = c("peppers", "onions", "mushrooms", "pineapple"),
+               hold = "no"),
+  lostpts_to_perc = cbind(pts_lost = 0:50, 
+                          perc = (50 - 0:50) / 50)
+)
+
+str(kq2_data)
+```
+
+a) 
+
+[1] "Power"     "is"        "Knowledge"
+
+```{r}
+kq2_data[[2]][c(3, 2, 1)]
+```
+
+b) 
+# A tibble: 6 × 3
+# Groups:   dest [1]
+  dest  carrier mean_arr_delay
+  <chr> <chr>            <dbl>
+1 MSP   9E                8.09
+2 MSP   DL                4.04
+3 MSP   EV               10.5 
+4 MSP   MQ                9.56
+5 MSP   OO               -2   
+6 MSP   UA               -5.5 
+
+```{r}
+as.tibble(kq2_data[[3]]) |>
+  filter(dest == "MSP", !is.na(arr_delay)) |>
+  group_by(dest, carrier) |>
+  summarize(mean_arr_delay = mean(arr_delay))
+```
+
+c) Note: It must be one string and you must subset from kq2_data for the words "bbq", "goat", "chicken", and "mushrooms" 
+
+[1] "Give me a bbq pizza with goat cheese, chicken, and mushrooms."
+```{r}
+kq2_data["toppings"]
+
+pizza <- str_c("Give me a ", kq2_data$toppings$sauce[2], " pizza with ", kq2_data$toppings$cheese[2], " cheese, ", kq2_data$toppings$meat[3], ", and ", kq2_data$toppings$veggie[3], ".")
+
+pizza
+```
+
+d) 
+
+[1] 10.0  0.8
+
+```{r}
+list <- kq2_data[[7]][11,]
+
+c(list[[1]][1], list[[2]][1])
+```
+
+
+2. Write a function called `test_genre_popularity()` that produces a single ggplot. It should allow a user to input:
+
+  1) a tibble
+  2) two song genres
+  3) and a plot option to create either a boxplot or faceted histograms
+  
+The title of your plot should indicate the two genres being compared. The subtitle should provide the *unique* test statistic and p-value for the specific genres being used, these values should change in the subtitle when you use different genres in the function input (Hint: the `t.test()` function will automatically calculate these numbers). Finally, your function should return an error when the user provides any plot option other than "boxplot" or "histogram". See the image KQ2_plot.png for examples of what the function should output.
+
+```{r}
+bigspotify <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
+
+bigspotify
+
+# function
+test_genre_popularity <- function(df, genre1, genre2, plot) {
+  df <- df |> filter(playlist_genre %in% c({{ genre1 }}, {{ genre2 }}))
+  t.test <- t.test(track_popularity ~ playlist_genre, data = df)
+
+  if(plot == "boxplot") {
+    df |>
+      ggplot(aes(x = playlist_genre, y = track_popularity)) +
+      geom_boxplot() +
+      labs(title = str_c("Comparing ", {{genre1}}, " and ", {{genre2}}, " genres by popularity."),
+           subtitle = str_c("Two sample t-test for difference in mean popularity scores: T = ", 
+                            t.test[["statistic"]], " and p-value = ",
+                            t.test[["p.value"]]))
+  } else if(plot == "histogram") {
+    df |>
+      ggplot(aes(x = track_popularity)) +
+      geom_histogram() +
+      facet_wrap(~playlist_genre) +
+      labs(title = str_c("Comparing ", {{genre1}}, " and ", {{genre2}}, " genres by popularity."),
+           subtitle = str_c("Two sample t-test for difference in mean popularity scores: T = ", 
+                            t.test[["statistic"]], " and p-value = ",
+                            t.test[["p.value"]]))
+  } else {
+    stop("Please use boxplot or histogram as the plotting option")
+  }
+}
+
+# This should work
+test_genre_popularity(df = bigspotify, 
+                      genre1 = "rap", 
+                      genre2 = "rock", 
+                      plot = "boxplot")
+
+# This should prompt an error message that says: 
+#   "Please use boxplot or histogram as the plotting option"
+
+# test_genre_popularity(df = bigspotify, 
+#                      genre1 = "rap", 
+#                      genre2 = "rock", 
+#                      plot = "density")
+
+
+# NOTE: the only genre options are pop, rap, rock, latin, r&b, and edm
+#  don't worry about an error message if one of these is not used
+```
+
+3. One of the harder concepts in statistics is the understanding of what the percentage in a confidence interval really means. Many introductory students believe that 95% confidence is a statement about the likelihood of the population parameter to be within the interval bounds. While not totally off-base, a better way to think about this is that if we take 1000 of different samples we expect around 950 of those samples to create 95% CIs that contain the true population parameter. Let's explore this.
+
+Write a for loop that takes 10,000 samples of size 45 from a normal distribution with a true population mean of 25 and a true standard deviation of 4. Then calculate the lower bound and upper bound of a 95% confidence interval for the mean using each sample. Finally, check to see what proportion of simulated samples actually contain 25. (Spoiler - it should be close to 0.95)
+
+Here are a couple hints and reminders:
+
+- `rnorm(n = 20, mean = 0, sd = 1)` will generate a random sample of size 20 from a Normal distribution with mean 0 and standard deviation 1.
+- The equation for a 95% confidence interval is the sample mean plus/minus 1.96 times sample standard deviation divided by the square root of sample size.
+
+$$\bar{x} \pm 1.96 \times \frac{s}{\sqrt{n}}$$
+- The mean of a vector of logicals will give you a proportion.
+
+```{r}
+# original for loop
+logical <- vector("logical", 10000)
+for(i in 1:10000) {
+  samples <- rnorm(n = 45, mean = 25, sd = 4)
+  means <- mean(samples)
+  upper_bound <- mean(means) + 1.96 * (4 / sqrt(45))
+  lower_bound <- mean(means) - 1.96 * (4 / sqrt(45))
+  sample_log <- as.tibble(samples) |> filter(value >= 25, value < 26)
+  true <- sample_log |> mutate(value = ifelse(value >= 25, TRUE, FALSE))
+  logical[[i]] <- as.logical(true |> slice_head())
+}
+
+as.tibble(logical) |>
+  mutate(value = ifelse(value == "NA", "0", "1")) |>
+  count(value)
+
+# proportion of samples that include 25
+9896 / 10000
+
+```
+
+
+Bonus: Turn your for loop from part a) into a function with inputs for `sample_size`, `num_samples`, `true_mean`, and `true_sd`. 
+
