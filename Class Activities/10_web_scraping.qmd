@@ -225,13 +225,13 @@ scrape_page <- function(url) {
   Sys.sleep(2)
   session <- bow(url, force = TRUE)
   page <- scrape(session)
-  nih_title <- get_text_from_page(".thumbnail-teaser__title")
-  nih_description <- get_text_from_page(".thumbnail-teaser__description")
+  nih_title <- get_text_from_page(page, ".thumbnail-teaser__title")
+  nih_description <- get_text_from_page(page, ".thumbnail-teaser__description")
   tibble(title = nih_title, description = nih_description) |>
     mutate(
-      pubdate = str_extract(description,".+ \\d{4}"),
-      description = str_extract(description, "(  ).*$"),
-      pubdate = mdy(pubdate)
+      pubdate = str_extract(description,"^.*(  )"),
+      pubdate = mdy(str_sub(pubdate, end = -3)),
+      description = str_extract(description, "(  ).*$")
     )
 
 }
