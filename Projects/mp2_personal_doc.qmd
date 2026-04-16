@@ -1,0 +1,35 @@
+---
+title: "Mini_Project_2"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(polite)
+```
+
+```{r}
+robotstxt::paths_allowed("https://www.hockey-reference.com/leagues/NHL_2026.html")
+
+#Step One
+nhl <- read_html("https://www.hockey-reference.com/leagues/NHL_2026.html")
+str(nhl)
+
+#Step Two
+table <- html_nodes(nhl, css = "table")
+untidy_tables <- html_table(table, header = TRUE, fill = TRUE)
+```
+
+```{r}
+eastern <- untidy_tables[[1]]
+
+eastern <- eastern |>
+  rename(Team = 1) 
+
+atlantic <- 
+```
+
