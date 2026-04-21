@@ -16,6 +16,7 @@ library(httr2)
 library(httr)
 library(tidycensus)
 library(purrr)
+
 ```
 
 ### On Your Own - OMDB
@@ -84,11 +85,9 @@ MN_tract_data <- function(year, county, variables) {
 
 3.  Use your function from (2) along with `map` and `list_rbind` to build a data set for Rice county for the years 2019-2021. Use your scraped data to plot trends in income over time and population over time.
 
-# how do i get time on the data set?
-
-```{r, eval=FALSE}
+```{r, results = 'hide', warning=FALSE, message=FALSE}
 MN_tract_data2 <- function(year) {
-  tidycensus::get_acs(
+  MNdata <- tidycensus::get_acs(
     year = year,
     state = "MN",
     geography = "tract",
@@ -98,25 +97,42 @@ MN_tract_data2 <- function(year) {
     county = "Rice",   
     show_call = TRUE
 )
+  as.tibble(MNdata) |>
+    mutate(year = year)
 }
 
 rice_county <- map(2019:2021, MN_tract_data2) |>
   list_rbind() |>
   rename(
     population = B01003_001E,
-    median_income = B19013_001E
-  )
+    median_income = B19013_001E) 
 
 ```
 
-```{r, eval = FALSE}
+```{r}
 # income over time
-ggplot(rice_county, aes(x = median_income)) +
-  geom_histogram()
+rice_county |>
+  mutate(year = as.factor(year)) |>
+  ggplot(aes(x = year, y = median_income, color = year)) +
+  geom_boxplot() +
+  geom_jitter() +
+  labs(x = "Year",
+       y = "Median Income",
+       color = "Year",
+       title = "Median Income in Rice County over Time")
+```
 
+```{r}
 # population over time
-ggplot(rice_county, aes(x = population)) +
-  geom_histogram()
+rice_county |>
+  mutate(year = as.factor(year)) |>
+  ggplot(aes(x = year, y = population, color = year)) +
+  geom_boxplot() +
+  geom_jitter() +
+  labs(x = "Year",
+       y = "Population",
+       color = "Year",
+       title = "Population of Rice County over Time")
 ```
 
 # 12_maps.qmd
