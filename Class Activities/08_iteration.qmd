@@ -429,8 +429,8 @@ read_excel("https://joeroith.github.io/264_spring_2026/Data/gapminder/1952.xlsx"
 
 # this will work if .xlsx files live in a Data folder that's at the same
 #   level as your .qmd file
-gap1952 <- read_excel("Data/gapminder/1952.xlsx")
-gap1957 <- read_excel("Data/gapminder/1957.xlsx")
+gap1952 <- read_excel("~/SDS 264 Spring 2026/SDS_264_spring26/Class Activities/1952.xlsx")
+gap1957 <- read_excel("~/SDS 264 Spring 2026/SDS_264_spring26/Class Activities/1957.xlsx")
 ```
 
 Since the 1952 and 1957 data have the same 5 columns, if we want to combine this data into a single data set showing time trends, we could simply `bind_rows()` (after adding a 6th column for `year`)
