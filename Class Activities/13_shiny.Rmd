@@ -29,6 +29,44 @@ runtime: shiny
     - `ui()` and `server()` sections
     - see 13a_AER_Shiny.Rmd on Prof. Roith's GitHub
 
+### Designing a dashboard
+
+  1. Main purpose/function (is it meant to run tests, explore data, etc?)
+  
+  - is it explanatory (static, non-interactive, here's the plot!)
+  - or is it exploratory (interactive, clean dataset, provide pathways for exploration)
+  - keep it simple: have one main purpose
+    
+  2. Data options
+  
+  - different data sets
+  - filtering/wrangling options
+    
+  3. Secondary functionality/options/plots
+  
+  - smaller/supporting pieces
+    
+  4. Sketch a layout of your dashboard
+  
+  5. Additional aesthetics or tweaks
+  
+  6. Clear titles, labels, captions...
+
+### Shiny App continued
+
+  - Embed within an Rmd (above)
+    - editing layout can be more challenging
+      - less control
+  - Standalone app
+    - `app.R` file
+    - see above again? ui and server sections
+    - more control with layout but still challenging
+    
+### Flexdashboard
+
+  - Used within Rmds but not embedded in a document (creates its own)
+  - layout is a lot more straight forward
+  - link on how to set up layout on the instructions doc
 
 
 ```{r setup, include=FALSE}

@@ -1,0 +1,37 @@
+---
+title: "Flex Dashboard Activity"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+
+ames_housing <- read.csv("AmesHousing.csv")
+```
+
+
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput(inputId = "year",
+              label = "Please select a year",
+              min = 1872, max = 2010, step = 1, value = 1960)
+)
+
+renderPlot(
+  ggplot(ames_housing, aes(x = input$year, y = Overall.Qual)) +
+    geom_jitter()
+)
+```
+
+
