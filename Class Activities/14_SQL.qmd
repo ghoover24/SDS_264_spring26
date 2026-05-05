@@ -91,6 +91,8 @@ However, there is no chunk preview option with SQL code, so you have to (a) knit
 
 This post is helpful:  https://irene.rbind.io/post/using-sql-in-rstudio/
 
+`output.var = ""` is how you save the out put as an object in R
+
 ```{sql, connection = con, output.var = "mydataframe"}
 SELECT 
   Reporting_Airline,
@@ -173,12 +175,12 @@ flights %>%
 Objects take up MUCH less space in memory when still lives on the server vs. collected into R
 
 ```{r}
-airports %>%
-  object.size() %>%
+airports %>%            # access directly from the server
+  object.size() %>% 
   print(units = "Kb") 
 
 airports %>%
-  collect() %>%
+  collect() %>%         # bring into R, more Kb
   object.size() %>%
   print(units = "Kb")
 
@@ -196,6 +198,7 @@ rm(x)
 
 
 Every query needs SELECT and FROM...
+
 
 ```{sql, connection = con}
 SELECT * FROM flightdata LIMIT 0,10;

@@ -96,7 +96,7 @@ Hints:
 ```
 
 
-## On Your Own - Adapting 164 Code
+## On Your Own - Adapting 164 Code - HW
 
 These problems are based on class exercises from SDS 164, so you've already solved them in R!  Now we're going to try to duplicate those solutions in SQL (but with 2023 data instead of 2013).
 
