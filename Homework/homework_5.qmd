@@ -1,6 +1,6 @@
 ---
 title: "Homework 5"
-format: html
+format: pdf
 ---
 
 ```{r}
@@ -14,8 +14,6 @@ library(DBI)
 ```
 
 ```{r}
-#| eval: FALSE
-
 # connect to the database which lives on a remote server maintained by
 #   St. Olaf's IT department
 
@@ -67,19 +65,15 @@ First duplicate the output above, then check trends in 2023 across all origins. 
 SELECT 
   origin,
   Reporting_Airline AS carrier,
-  ArrTime,
-  COUNT(`Reporting_Airline`) AS num_flights,
+  COUNT(*) AS num_flights,
   SUM(CASE WHEN ArrTime IS NULL THEN 1 ELSE 0 END) AS num_cancelled,
   AVG(CASE WHEN cancelled = 1 THEN 1 ELSE 0 END) AS prop_cancelled
 FROM flightdata
-WHERE Year = 2023 AND dest = 'MSP' AND origin IN ('JFK', 'EWR', 'LGA') 
-GROUP BY origin, carrier;
-
+WHERE Year = 2023 AND dest = 'MSP'  
+GROUP BY origin, carrier
+LIMIT 0, 20;
 ```
 
-```{sql, connection = con}
-DESCRIBE flightdata
-```
 
 2. Plot number of flights vs. proportion cancelled for every origin-destination pair (assuming that a missing arrival time indicates a cancelled flight).  [This was #7 in 17_longer_pipelines.Rmd.]
 
@@ -101,6 +95,23 @@ First duplicate the plot above for 2023 data, then check trends across all origi
 - use an `sql` chunk and an `r` chunk
 - include `connection = ` and `output.var = ` in your sql chunk header (this doesn't seem to work with dbGetQuery()...)
 
+```{sql, connection = con, output.var = myflightsdata}
+SELECT origin, dest,
+  SUM(1) AS n,
+  AVG(CASE WHEN cancelled = 1 THEN 1 ELSE 0 END) AS prop_cancelled
+FROM flightdata
+WHERE Year = 2023
+GROUP BY origin, dest
+HAVING prop_cancelled < 1;
+
+```
+
+# this looks like a lot
+
+```{r}
+ggplot(myflightsdata, aes(n, prop_cancelled)) +
+  geom_point()
+```
 
 3. Produce a table of weighted plane age by carrier, where weights are based on number of flights per plane.  [This was #6 in 26_more_joins.Rmd.]
 
@@ -127,3 +138,21 @@ First duplicate the output above for 2023, then check trends across all origins.
 
 For bonus points, also merge the airlines dataset and include the name of each carrier and not just the abbreviation!
 
+
+```{sql, connection = con}
+SELECT 
+  a.name,
+  f.Reporting_Airline AS carrierID,
+  COUNT(DISTINCT f.TAIL_NUMBER) AS unique_planes,
+  AVG(2023 - p.year) AS mean_weighted_age,
+  STDDEV_SAMP(2023 - p.year) AS sd_weighted_age
+FROM flightdata AS f
+JOIN planes AS p ON f.TAIL_NUMBER = p.tailnum
+JOIN airlines AS a ON f.Reporting_Airline = a.carrier
+GROUP BY carrier
+ORDER BY mean_weighted_age ASC
+LIMIT 0, 10;
+
+
+
+```
