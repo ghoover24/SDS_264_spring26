@@ -40,7 +40,7 @@ planes_nyc13 <- nycflights13::planes
 
 1. Summarize carriers flying to MSP by number of flights and proportion that are cancelled (assuming that a missing arrival time indicates a cancelled flight).  [This was #4 in 17_longer_pipelines.Rmd.]
 
-```{r}
+```{r, message = FALSE}
 # Original solution from SDS 164
 flights_nyc13 |>
   mutate(carrier = fct_collapse(carrier, "Delta +" = c("DL", "9E"), 
@@ -77,7 +77,7 @@ LIMIT 0, 20;
 
 2. Plot number of flights vs. proportion cancelled for every origin-destination pair (assuming that a missing arrival time indicates a cancelled flight).  [This was #7 in 17_longer_pipelines.Rmd.]
 
-```{r}
+```{r, message = FALSE}
 # Original solution from SDS 164
 flights_nyc13 |>
   group_by(origin, dest) |>
@@ -95,7 +95,8 @@ First duplicate the plot above for 2023 data, then check trends across all origi
 - use an `sql` chunk and an `r` chunk
 - include `connection = ` and `output.var = ` in your sql chunk header (this doesn't seem to work with dbGetQuery()...)
 
-```{sql, connection = con, output.var = myflightsdata}
+```{r}
+my_flights_data <- dbGetQuery(con, '
 SELECT origin, dest,
   SUM(1) AS n,
   AVG(CASE WHEN cancelled = 1 THEN 1 ELSE 0 END) AS prop_cancelled
@@ -103,19 +104,16 @@ FROM flightdata
 WHERE Year = 2023
 GROUP BY origin, dest
 HAVING prop_cancelled < 1;
+')
 
-```
-
-# this looks like a lot
-
-```{r}
-ggplot(myflightsdata, aes(n, prop_cancelled)) +
+ggplot(my_flights_data, aes(n, prop_cancelled)) +
   geom_point()
 ```
 
+
 3. Produce a table of weighted plane age by carrier, where weights are based on number of flights per plane.  [This was #6 in 26_more_joins.Rmd.]
 
-```{r}
+```{r, message = FALSE}
 # Original solution from SDS 164
 flights_nyc13 |>
   left_join(planes_nyc13, join_by(tailnum)) |>
@@ -153,6 +151,5 @@ GROUP BY carrier
 ORDER BY mean_weighted_age ASC
 LIMIT 0, 10;
 
-
-
 ```
+
