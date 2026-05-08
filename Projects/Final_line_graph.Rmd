@@ -1,0 +1,71 @@
+---
+title: "line graph working doc"
+author: "Gaby Hoover"
+date: "2026-05-07"
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(viridis)
+library(rvest)
+library(polite)
+library(purrr)
+```
+
+```{r, include=FALSE}
+robotstxt::paths_allowed("https://www.hockey-reference.com/leagues/NHL_2026.html")
+
+#Step One
+nhl <- read_html("https://www.hockey-reference.com/leagues/NHL_2026.html")
+str(nhl)
+
+#Step Two
+table <- html_nodes(nhl, css = "table")
+untidy_tables <- html_table(table, header = TRUE, fill = TRUE)
+
+scrape <- function(x) {
+  url <- read_html(str_c("https://www.hockey-reference.com/leagues/NHL_", x, ".html")) 
+  table <- html_nodes(url, css = "table")
+  untidy_tables <- html_table(table, header = TRUE, fill = TRUE) 
+  eastern <- untidy_tables[[1]] |>                   # tidy eastern conference
+    rename(Team = 1) |>                              # rename first column      
+    slice(-1, -10)                                   # remove unnecessary rows
+  western <- untidy_tables[[2]] |>                   # tidy western conference
+    rename(Team = 1) |>                              # rename first column
+    slice(-1, -10)                                   # remove unnecessary rows
+  full_standings <- western |>                       # join eastern and western
+    full_join(eastern) |>
+    mutate(season = x)
+  full_standings
+}
+
+nhl_full_years <- map_df(2022:2026, scrape)
+
+nhl_full_years <- nhl_full_years |>
+  rename(PTS_PCT = `PTS%`,
+         RPt_PCT = `RPt%`,
+         RgPT_PCT = `RgPt%`) |>
+  mutate(across(GP:RW, as.numeric),
+         RgPT_PCT = as.numeric(RgPT_PCT),
+         season = as.factor(season))
+```
+
+
+```{r nhl_full_years, echo=FALSE}
+inputPanel(
+  selectInput("chosen_stat", label = "Chosen Statistic:",
+              choices = c("Number of Wins" = "W", 
+                          "Number of Losses" = "L",
+                          "Win Percentage" = "W_PCT"))
+)
+
+renderPlot(
+  nhl_full_years |>
+    filter(Team %in% c("Minnesota Wild", "St. Louis Blues")) |>
+    ggplot(aes(x = season, y = W, color = Team)) +
+    geom_point() +
+    geom_smooth()
+)
+```

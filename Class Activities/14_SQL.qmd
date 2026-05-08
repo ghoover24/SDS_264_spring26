@@ -48,7 +48,7 @@ SHOW TABLES;
 ```
 
 ```{sql, connection = con}
-DESCRIBE airlines;
+DESCRIBE flightdata;
 ```
 
 ```{sql, connection = con}
@@ -758,3 +758,34 @@ delay_chart +
     size = 2
   )
 ```
+
+
+# MSP On Your Own
+
+```{r}
+MSP_taxi <- flights |>
+  filter(origin == "MSP",
+         Year == 2023,
+         Month == 5,
+         DayofMonth == 4) |>
+  group_by(Reporting_Airline) |>
+  summarize(avg_taxi_time = (TaxiOut + taxiin) / 2)
+```
+```{sql, connection = con}
+DESCRIBE flightdata
+```
+
+
+```{sql, connection = con}
+SELECT
+  Reporting_Airline,
+  origin,
+  AVG(TaxiOut) AS avg_taxi_out,
+  AVG(taxiin) AS avg_taxi_it,
+  AVG(taxiin + TaxiOut) AS avg_total_taxi
+FROM flightdata
+WHERE Year = 2023 AND Month = 5 AND DayofMonth = 4 AND origin = 'MSP'
+GROUP BY Reporting_Airline
+ORDER BY avg_total_taxi DESC;
+```
+
