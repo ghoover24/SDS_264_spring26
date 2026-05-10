@@ -28,30 +28,8 @@ con <- dbConnect(
 
 ## On Your Own - Adapting 164 Code - HW
 
-These problems are based on class exercises from SDS 164, so you've already solved them in R!  Now we're going to try to duplicate those solutions in SQL (but with 2023 data instead of 2013).
-
-```{r}
-# Read in 2013 NYC flights data
-library(nycflights13)
-flights_nyc13 <- nycflights13::flights
-planes_nyc13 <- nycflights13::planes
-```
-
 
 1. Summarize carriers flying to MSP by number of flights and proportion that are cancelled (assuming that a missing arrival time indicates a cancelled flight).  [This was #4 in 17_longer_pipelines.Rmd.]
-
-```{r, message = FALSE}
-# Original solution from SDS 164
-flights_nyc13 |>
-  mutate(carrier = fct_collapse(carrier, "Delta +" = c("DL", "9E"), 
-                                      "American +"= c("AA", "MQ"), 
-                                     "United +" = c("EV", "OO", "UA"))) |>
-  filter(dest == "MSP") |>   
-  group_by(origin, carrier) |>
-  summarize(n_flights = n(), 
-            num_cancelled = sum(is.na(arr_time)),
-            prop_cancelled = mean(is.na(arr_time)))
-```
 
 First duplicate the output above, then check trends in 2023 across all origins.  Here are a few hints:
 
@@ -59,13 +37,15 @@ First duplicate the output above, then check trends in 2023 across all origins. 
 - remember that flights_nyc13 only contained 2013 and 3 NYC origin airports (EWR, JFK, LGA)
 - is.na can be replaced with CASE WHEN ArrTime IS NULL THEN 1 ELSE 0 END or with CASE WHEN cancelled = 1 THEN 1 ELSE 0 END
 - CASE WHEN can also be used replace fct_collapse
-# factor collapse
 
 ```{sql, connection = con}
 SELECT 
   origin,
-  Reporting_Airline AS carrier,
-  COUNT(*) AS num_flights,
+  CASE 
+    WHEN Reporting_Airline IN ('DL', '9E') THEN 'Delta +' 
+    WHEN Reporting_Airline IN ('AA', 'MQ') THEN 'American +' 
+    ELSE 'United +' END AS carrier, 
+    COUNT(*) AS num_flights,
   SUM(CASE WHEN ArrTime IS NULL THEN 1 ELSE 0 END) AS num_cancelled,
   AVG(CASE WHEN cancelled = 1 THEN 1 ELSE 0 END) AS prop_cancelled
 FROM flightdata
@@ -76,17 +56,6 @@ LIMIT 0, 20;
 
 
 2. Plot number of flights vs. proportion cancelled for every origin-destination pair (assuming that a missing arrival time indicates a cancelled flight).  [This was #7 in 17_longer_pipelines.Rmd.]
-
-```{r, message = FALSE}
-# Original solution from SDS 164
-flights_nyc13 |>
-  group_by(origin, dest) |>
-  summarize(n = n(),
-            prop_cancelled = mean(is.na(arr_time))) |>
-  filter(prop_cancelled < 1) |>
-  ggplot(aes(n, prop_cancelled)) + 
-  geom_point()
-```
 
 First duplicate the plot above for 2023 data, then check trends across all origins.  Do all of the data wrangling in SQL.  Here are a few hints:
 
@@ -112,18 +81,6 @@ ggplot(my_flights_data, aes(n, prop_cancelled)) +
 
 
 3. Produce a table of weighted plane age by carrier, where weights are based on number of flights per plane.  [This was #6 in 26_more_joins.Rmd.]
-
-```{r, message = FALSE}
-# Original solution from SDS 164
-flights_nyc13 |>
-  left_join(planes_nyc13, join_by(tailnum)) |>
-  mutate(plane_age = 2013 - year.y) |>
-  group_by(carrier) |>
-  summarize(unique_planes = n_distinct(tailnum),
-            mean_weighted_age = mean(plane_age, na.rm =TRUE),
-            sd_weighted_age = sd(plane_age, na.rm =TRUE)) |>
-  arrange(mean_weighted_age)
-```
 
 First duplicate the output above for 2023, then check trends across all origins.  Do all of the data wrangling in SQL.  Here are a few hints:
 
