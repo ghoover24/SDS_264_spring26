@@ -49,7 +49,7 @@ SELECT
   SUM(CASE WHEN ArrTime IS NULL THEN 1 ELSE 0 END) AS num_cancelled,
   AVG(CASE WHEN cancelled = 1 THEN 1 ELSE 0 END) AS prop_cancelled
 FROM flightdata
-WHERE Year = 2023 AND dest = 'MSP'  
+WHERE Year = 2023 AND dest = 'MSP' AND origin IN ('LGA', 'EWR', 'JFK') 
 GROUP BY origin, carrier
 LIMIT 0, 20;
 ```
